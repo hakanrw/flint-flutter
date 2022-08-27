@@ -4,6 +4,7 @@ import 'package:flint/components/alert.dart';
 import 'package:flint/components/post.dart';
 import 'package:flint/components/write.dart';
 import 'package:flint/constants.dart';
+import 'package:flint/skeletons/post.dart';
 import 'package:flutter/material.dart';
 
 class Feed extends StatefulWidget {
@@ -14,6 +15,8 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
+  
+  bool hasLoadingPost = false;
   List<dynamic>? _posts;
 
   @override
@@ -28,12 +31,13 @@ class _FeedState extends State<Feed> {
       print(value.data);
       setState(() {
         _posts = value.data;
+        hasLoadingPost = false;
       });
     });
   }
 
   void onWrite(int status) {
-    if (status == 0) setState(() => _posts = null);
+    if (status == 0) setState(() => hasLoadingPost = true);
     if (status == 1) fetchPosts();
   }
 
@@ -45,7 +49,9 @@ class _FeedState extends State<Feed> {
         children: [
           Write(onWrite: onWrite),
 
-          if (_posts == null) Alert(message: "Loading your feed..."),
+          if (hasLoadingPost) PostSkeleton(),
+
+          if (_posts == null) ...[PostSkeleton(), PostSkeleton(),],
 
           if (_posts != null && _posts!.isEmpty) Alert(message: "Your feed is empty."),
 
@@ -58,6 +64,7 @@ class _FeedState extends State<Feed> {
             date: e["created_at"],
             commentCount: e["comment_count"],
             avatarUrl: e["avatar_url"],
+            onDelete: fetchPosts,
             )
           ).toList()
         ],

@@ -122,7 +122,7 @@ class _LoginState extends State<Login> {
       ),
     ];
 
-    return isMobile ? Column(children: pageEls, crossAxisAlignment: CrossAxisAlignment.center,) : Row(children: pageEls);
+    return isMobile ? ListView( children: [ Column(children: pageEls, crossAxisAlignment: CrossAxisAlignment.center,), SizedBox(height: 40) ] ) : Row(children: pageEls);
   }
 
 }

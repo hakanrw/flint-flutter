@@ -1,9 +1,12 @@
-import 'package:flutter/material.dart';
-
+import 'package:flint/skeletons/avatar.dart';
 import 'package:flint/components/avatar.dart';
 import 'package:flint/constants.dart';
+import 'package:flint/skeletons/post.dart';
 
-class Post extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:skeletons/skeletons.dart';
+
+class Post extends StatefulWidget {
   Post({ 
     required this.id, 
     required this.author, 
@@ -11,7 +14,8 @@ class Post extends StatelessWidget {
     required this.username, 
     required this.date, 
     required this.avatarUrl,
-    required this.commentCount }) : super(key: Key(id));
+    required this.commentCount,
+             this.onDelete }) : super(key: Key(id));
 
   final String id;
   final String author;
@@ -20,9 +24,47 @@ class Post extends StatelessWidget {
   final String date;
   final String? avatarUrl;
   final int commentCount;
+  final bool isComment = false;
+  final Function? onDelete;
+
+  @override
+  _PostState createState() => _PostState();
+}
+
+class _PostState extends State<Post> {
+
+  bool showSkeleton = false;
+
+  void deletePost() {
+    setState(() => showSkeleton = true);
+
+    supabase.from(widget.isComment ? "comments" : "posts").delete().match({"id": widget.id}).execute().then((value) {
+      if (value.hasError) {
+        setState(() => showSkeleton = false);
+        return;
+      }
+      if (widget.onDelete != null) widget.onDelete!();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final bool isSelf = widget.author == supabase.auth.currentUser!.id;
+
+    final opts = PopupMenuButton(
+      itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+        PopupMenuItem(
+          child: ListTile(
+            leading: Icon(Icons.delete, color: Colors.red),
+            title: Text('Delete', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ),
+          onTap: deletePost
+        )
+      ],
+    );
+
+    if (showSkeleton) return PostSkeleton();
+
     return Container(
       width: double.infinity,
       decoration: decor,
@@ -32,18 +74,13 @@ class Post extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Avatar(
-            username: username, 
-            date: date, 
-            avatarUrl: avatarUrl, 
-            options: Container( child: FlatButton(
-              onPressed: () {
-              },
-              shape: CircleBorder(),
-              child: Icon(Icons.more_vert),
-            ), width: 40)
+            username: widget.username, 
+            date: widget.date, 
+            avatarUrl: widget.avatarUrl, 
+            options: isSelf ? opts : null
           ),
           const SizedBox(height: 20),
-          SelectableText(content),
+          SelectableText(widget.content),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -51,7 +88,7 @@ class Post extends StatelessWidget {
               const SizedBox(width: 15),
               Icon(Icons.comment, color: Color.fromARGB(255, 132, 132, 132)),
               const SizedBox(width: 5),
-              if (commentCount > 0) Container(child: Text("$commentCount"), padding: EdgeInsets.fromLTRB(0, 0, 0, 4),)
+              if (widget.commentCount > 0) Container(child: Text("${widget.commentCount}"), padding: EdgeInsets.fromLTRB(0, 0, 0, 4),)
             ],
           )
         ],

@@ -21,7 +21,8 @@ class _WriteState extends State<Write> {
     widget.onWrite(0);
     final _value = writeController.text;
     writeController.clear();
-
+    FocusManager.instance.primaryFocus?.unfocus();
+    
     supabase.rpc("create_post", params: {"content": _value}).execute().then((value) {
       widget.onWrite(1);
       if (value.error != null) writeController.text = _value;
