@@ -13,10 +13,18 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
   final _pages = ["Feed", "People", "Notifications", "Settings"];
   final _pageViews = [Feed(), Container(), Container(), Container()];
-
   var _pageIndex = 0;
+  
+  Widget? _overlyingWidget;
+
+  void changeWidgetRequest(Widget? overlapWidget) {
+    setState(() {
+      _overlyingWidget = overlapWidget;
+    });
+  }
 
   String get page {
     return _pages[_pageIndex];
@@ -29,12 +37,14 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     // TODO: Implement
+    homeStateInstance = this;
     super.initState();
   }
 
   @override
   void dispose() {
     // TODO: Implement
+    homeStateInstance = null;
     super.dispose();
   }
 
@@ -55,6 +65,7 @@ class _HomeState extends State<Home> {
           key: Key(e),
           onPressed: () {
             setState(() {
+              _overlyingWidget = null;
               _pageIndex = _pages.indexOf(e);
             });
           }, 
@@ -75,6 +86,23 @@ class _HomeState extends State<Home> {
         ),
       )
     ];
+
+    final pageOpt = Column (
+      children: [
+        if (!isMobile) Container(  
+          margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          padding: const EdgeInsets.all(20),
+          constraints: BoxConstraints(minWidth: 600, maxWidth: 600),
+          decoration: decor,
+          child: Text(page, style: hStyle, textAlign: TextAlign.center,)
+        ),
+        Container(  
+          margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
+          constraints: BoxConstraints(minWidth: 600, maxWidth: 600),
+          child: _overlyingWidget ?? pageView,
+        )
+      ]
+    );
 
     final pageEls = [
       Container(
@@ -99,24 +127,9 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      Expanded(
-        child: Column (
-          children: [
-            if (!isMobile) Container(  
-              margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              padding: const EdgeInsets.all(20),
-              constraints: BoxConstraints(minWidth: 600, maxWidth: 600),
-              decoration: decor,
-              child: Text(page, style: hStyle, textAlign: TextAlign.center,)
-            ),
-            Container(  
-              margin: EdgeInsets.fromLTRB(20, 0, 20, 20),
-              constraints: BoxConstraints(minWidth: 600, maxWidth: 600),
-              child: pageView,
-            )
-          ]
-        )
-      ),
+
+      isMobile ? pageOpt : Expanded(child: pageOpt),
+
       if (!isMobile) Container(
         width: 250,
         padding: const EdgeInsets.all(20),
@@ -160,3 +173,5 @@ class _HomeState extends State<Home> {
     );
   }
 }
+
+_HomeState? homeStateInstance;

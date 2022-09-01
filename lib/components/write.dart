@@ -6,8 +6,9 @@ import 'package:flint/constants.dart';
 import 'package:flutter/services.dart';
 
 class Write extends StatefulWidget {
-  Write({ Key? key, required this.onWrite }) : super(key: key);
+  Write({ Key? key, required this.onWrite, this.commentTo }) : super(key: key);
 
+  String? commentTo;
   void Function(int) onWrite;
 
   @override
@@ -47,7 +48,8 @@ class _WriteState extends State<Write> {
           RawKeyboardListener(
             focusNode: FocusNode(),
             onKey: (value) {
-              if (value is RawKeyUpEvent == false) return;
+              if ( (value is RawKeyDownEvent) == false) return;
+              print(value);
               if (value.isControlPressed && value.physicalKey == PhysicalKeyboardKey.enter) sendWrite();
             },
             child: TextField(

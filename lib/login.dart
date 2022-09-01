@@ -88,8 +88,9 @@ class _LoginState extends State<Login> {
               onSubmitted: (_) => logIn(),
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Username',
+                labelText: 'E-mail',
               ),
+              keyboardType: TextInputType.emailAddress,
               controller: usernameController,
             ),
             SizedBox(height: 20),

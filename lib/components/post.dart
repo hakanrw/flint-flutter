@@ -1,30 +1,23 @@
+import 'package:flint/home.dart';
+import 'package:flint/miscellaneous/post_data.dart';
 import 'package:flint/skeletons/avatar.dart';
 import 'package:flint/components/avatar.dart';
 import 'package:flint/constants.dart';
 import 'package:flint/skeletons/post.dart';
+import 'package:flint/views/post_view.dart';
 
 import 'package:flutter/material.dart';
 import 'package:skeletons/skeletons.dart';
 
 class Post extends StatefulWidget {
-  Post({ 
-    required this.id, 
-    required this.author, 
-    required this.content, 
-    required this.username, 
-    required this.date, 
-    required this.avatarUrl,
-    required this.commentCount,
-             this.onDelete }) : super(key: Key(id));
+  Post({
+    required this.postData,
+             this.onDelete,
+             this.isComment = false 
+             }) : super(key: Key(postData.id));
 
-  final String id;
-  final String author;
-  final String username;
-  final String content;
-  final String date;
-  final String? avatarUrl;
-  final int commentCount;
-  final bool isComment = false;
+  final PostData postData;
+  final bool isComment;
   final Function? onDelete;
 
   @override
@@ -38,7 +31,7 @@ class _PostState extends State<Post> {
   void deletePost() {
     setState(() => showSkeleton = true);
 
-    supabase.from(widget.isComment ? "comments" : "posts").delete().match({"id": widget.id}).execute().then((value) {
+    supabase.from(widget.isComment ? "comments" : "posts").delete().match({"id": widget.postData.id}).execute().then((value) {
       if (value.hasError) {
         setState(() => showSkeleton = false);
         return;
@@ -49,7 +42,7 @@ class _PostState extends State<Post> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isSelf = widget.author == supabase.auth.currentUser!.id;
+    final bool isSelf = widget.postData.author == supabase.auth.currentUser!.id;
 
     final opts = PopupMenuButton(
       itemBuilder: (BuildContext context) => <PopupMenuEntry>[
@@ -74,21 +67,21 @@ class _PostState extends State<Post> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Avatar(
-            username: widget.username, 
-            date: widget.date, 
-            avatarUrl: widget.avatarUrl, 
+            username: widget.postData.username, 
+            date: widget.postData.date, 
+            avatarUrl: widget.postData.avatarUrl, 
             options: isSelf ? opts : null
           ),
           const SizedBox(height: 20),
-          SelectableText(widget.content),
+          SelectableText(widget.postData.content),
           const SizedBox(height: 20),
-          Row(
+          if (!widget.isComment) Row(
             children: [
-              Icon(Icons.favorite, color: Color.fromARGB(255, 132, 132, 132)),
+              IconButton(onPressed: () {}, icon: Icon(Icons.favorite, color: Color.fromARGB(255, 132, 132, 132)), padding: EdgeInsets.zero),
               const SizedBox(width: 15),
-              Icon(Icons.comment, color: Color.fromARGB(255, 132, 132, 132)),
+              IconButton(onPressed: () => homeStateInstance?.changeWidgetRequest(PostView(postId: widget.postData.id)), icon: Icon(Icons.comment, color: Color.fromARGB(255, 132, 132, 132)), padding: EdgeInsets.zero),
               const SizedBox(width: 5),
-              if (widget.commentCount > 0) Container(child: Text("${widget.commentCount}"), padding: EdgeInsets.fromLTRB(0, 0, 0, 4),)
+              if (widget.postData.commentCount > 0) Container(child: Text("${widget.postData.commentCount}"), padding: EdgeInsets.fromLTRB(0, 0, 0, 4),)
             ],
           )
         ],
