@@ -81,7 +81,7 @@ class _PostState extends State<Post> {
               const SizedBox(width: 15),
               IconButton(onPressed: () => homeStateInstance?.changeWidgetRequest(PostView(postId: widget.postData.id)), icon: Icon(Icons.comment, color: Color.fromARGB(255, 132, 132, 132)), padding: EdgeInsets.zero),
               const SizedBox(width: 5),
-              if (widget.postData.commentCount > 0) Container(child: Text("${widget.postData.commentCount}"), padding: EdgeInsets.fromLTRB(0, 0, 0, 4),)
+              if ( (widget.postData.commentCount ?? 0 ) > 0) Container(child: Text("${widget.postData.commentCount}"), padding: EdgeInsets.fromLTRB(0, 0, 0, 4),)
             ],
           )
         ],

@@ -1,9 +1,10 @@
 import 'dart:async';
-
-import 'package:flint/views/feed.dart';
 import 'package:flutter/material.dart';
 
-import 'constants.dart';
+import 'package:flint/views/feed.dart';
+import 'package:flint/views/person.dart';
+import 'package:flint/views/people.dart';
+import 'package:flint/constants.dart';
 
 class Home extends StatefulWidget {
   const Home({ Key? key }) : super(key: key);
@@ -15,7 +16,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
 
   final _pages = ["Feed", "People", "Notifications", "Settings"];
-  final _pageViews = [Feed(), Container(), Container(), Container()];
+  final _pageViews = [Feed(), People(), Container(), Container()];
   var _pageIndex = 0;
   
   Widget? _overlyingWidget;
@@ -57,7 +58,7 @@ class _HomeState extends State<Home> {
     );
 
     final width = MediaQuery.of(context).size.width;
-    final isMobile = width < 900;
+    final isMobile = width < 800;
 
     final navEls = [
       ..._pages.map((e) => 
@@ -130,7 +131,7 @@ class _HomeState extends State<Home> {
 
       isMobile ? pageOpt : Expanded(child: pageOpt),
 
-      if (!isMobile) Container(
+      if (width > 1000) Container(
         width: 250,
         padding: const EdgeInsets.all(20),
         child: Column(

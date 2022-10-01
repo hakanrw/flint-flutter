@@ -49,13 +49,12 @@ class _WriteState extends State<Write> {
             focusNode: FocusNode(),
             onKey: (value) {
               if ( (value is RawKeyDownEvent) == false) return;
-              print(value);
               if (value.isControlPressed && value.physicalKey == PhysicalKeyboardKey.enter) sendWrite();
             },
             child: TextField(
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                labelText: 'Write',
+                labelText: 'What\'s on your mind?',
               ),
               minLines: 4,
               maxLines: 4,

@@ -1,8 +1,10 @@
+import 'package:flint/components/person_header.dart';
 import 'package:flint/components/post.dart';
 import 'package:flint/components/write.dart';
 import 'package:flint/constants.dart';
 import 'package:flint/home.dart';
 import 'package:flint/miscellaneous/post_data.dart';
+import 'package:flint/skeletons/person_header.dart';
 import 'package:flint/skeletons/post.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +20,8 @@ class PostView extends StatefulWidget {
 class _PostViewState extends State<PostView> {
 
   PostData? _postData;
+
+  List<PostData>? _comments;
 
   @override
   void initState() {
@@ -42,22 +46,31 @@ class _PostViewState extends State<PostView> {
       ]
     );
 
-    setState(() => _postData = PostData.fromJson({ ...data[0].data[0] as Map, ...post.data[0] as Map, "comment_count": data[1].data.length }));
+    setState(() {
+      _postData = PostData.fromJson({ ...data[0].data[0] as Map, ...post.data[0] as Map, "comment_count": data[1].data.length });
+      _comments = (data[1].data as List).map((e) => PostData.fromJson(e as Map)).toList();
+    });
     
   }
 
   @override
   Widget build(BuildContext context) {
     if (_postData == null) return Container(
-      child: PostSkeleton(),
+      child: Column(
+        children: [
+          PersonHeaderSkeleton(),
+          PostSkeleton(),
+        ],
+      )
     );
 
     return Container(
       child: Column(
         children: [
+          PersonHeader(avatarUrl: _postData!.avatarUrl, username: _postData!.username,),
           Post(postData: _postData!, onDelete: () => homeStateInstance?.changeWidgetRequest(null)),
           Write(onWrite: (_) {}, commentTo: _postData!.id),
-          PostSkeleton(),
+          if (_comments != null) ..._comments!.map((e) => Post(postData: e)).toList()
         ],
       ),
     );

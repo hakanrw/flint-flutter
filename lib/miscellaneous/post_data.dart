@@ -6,7 +6,7 @@ class PostData {
     required this.username, 
     required this.date, 
     required this.avatarUrl,
-    required this.commentCount,
+    this.commentCount,
              });
 
   final String id;
@@ -15,7 +15,7 @@ class PostData {
   final String content;
   final String date;
   final String? avatarUrl;
-  final int commentCount;
+  final int? commentCount;
 
   factory PostData.fromJson(dynamic json) {
     return PostData (
@@ -25,7 +25,7 @@ class PostData {
       username: json['username'] as String,
       date: json['created_at'] as String,
       avatarUrl: json['avatar_url'] as String?,
-      commentCount: json['comment_count'] as int,
+      commentCount: json['comment_count'] as int?,
       );
   }
 }
